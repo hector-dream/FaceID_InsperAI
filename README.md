@@ -16,9 +16,8 @@ Sistema de reconhecimento e detecção facial desenvolvido como trabalho final. 
 
 ```
 src/
-  capture.py        - Módulo de captura de imagens via webcam
-  detection.py      - Módulo de detecção e processamento de faces
   __init__.py       - Inicialização do pacote
+  capture.py        - Módulo de captura de imagens via webcam
 
 data/
   dataset/          - Diretório para armazenamento de dados capturados
@@ -47,21 +46,3 @@ ou
 ```bash
 pip install -r requirements.txt
 ```
-
-## Uso
-
-Para capturar imagens de teste:
-
-```bash
-python src/capture.py
-```
-
-Para executar detecção em imagens:
-
-```bash
-python src/detection.py
-```
-
-## Observações
-
-O modelo utilizado (Blaze Face) é otimizado para detecção rápida de faces em tempo real, apropriado para aplicações em dispositivos com recursos limitados.
