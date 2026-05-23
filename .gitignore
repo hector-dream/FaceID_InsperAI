@@ -218,4 +218,13 @@ __marimo__/
 .streamlit/secrets.toml
 
 
+# ─── FaceID (artefatos do projeto) ───
 dataset
+data/dataset/
+data/embeddings.pkl
+*.pkl
+
+# Modelos de IA baixados em runtime
+~/.insightface/
+src/blaze_face_short_range.tflite
+src/face_landmarker.task
