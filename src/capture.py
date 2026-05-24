@@ -32,8 +32,9 @@ def extract_bbox(detection, frame_shape, margin: float = 0.0):
     bbox = detection.bounding_box
 
     bw, bh = bbox.width, bbox.height
-    mx, my = int(bw * margin), int(bh * margin)
+    mx, my = int(bw * margin), int(bh * margin)  # folga em pixels
 
+    # limita ao frame para evitar coordenadas fora do limite
     x_min = max(0, int(bbox.origin_x) - mx)
     y_min = max(0, int(bbox.origin_y) - my)
     x_max = min(w, int(bbox.origin_x + bw) + mx)

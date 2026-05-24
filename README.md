@@ -11,6 +11,8 @@ a tela começa **bloqueada (vermelha)**, reconhece o rosto cadastrado, exige uma
 - Lara
 - Anderson
 
+> **Nota**: Execute `uv sync` para instalar as dependências antes da primeira execução.
+
 ---
 
 ## Pipeline

@@ -52,13 +52,15 @@ def _dist(p1, p2) -> float:
 
 def _eye_aspect_ratio(landmarks, indices, w: int, h: int) -> float:
     """Calcula o EAR de um olho a partir de 6 landmarks (em pixels)."""
+    # converte coordenadas normalizadas (0-1) para pixels
     p = [(landmarks[i].x * w, landmarks[i].y * h) for i in indices]
     p1, p2, p3, p4, p5, p6 = p
+    # olho aberto = EAR alto; olho fechado = EAR baixo
     vertical = _dist(p2, p6) + _dist(p3, p5)
     horizontal = 2.0 * _dist(p1, p4)
     if horizontal == 0:
         return 0.0
-    return vertical / horizontal
+    return vertical / horizontal  # quanto maior, mais aberto o olho
 
 
 class LivenessDetector:

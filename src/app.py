@@ -53,10 +53,10 @@ class RecognitionWorker:
 
     def __init__(self, recognizer: FaceRecognizer):
         self.recognizer = recognizer
-        self._lock = threading.Lock()
-        self._frame = None
-        self._result = ("Desconhecido", 0.0)
-        self._ready = False              
+        self._lock = threading.Lock()  # garante que thread e main loop não peguem no mesmo frame
+        self._frame = None  # frame mais recente a processar
+        self._result = ("Desconhecido", 0.0)  # último resultado de reconhecimento
+        self._ready = False  # flag: resultado já foi calculado?              
         self._running = True
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
@@ -77,17 +77,19 @@ class RecognitionWorker:
         while self._running:
             with self._lock:
                 frame = self._frame
-                self._frame = None
+                self._frame = None  # consome o frame
             if frame is None:
-                time.sleep(0.01)
+                time.sleep(0.01)  # nada a fazer, descansa
                 continue
 
+            # processa o rosto mais saliente
             face = largest_face(detect_faces(frame))
             if face is not None:
                 res = self.recognizer.identify(face.normed_embedding)
             else:
                 res = ("Desconhecido", 0.0)
 
+            # armazena resultado para o loop principal ler
             with self._lock:
                 self._result = res
                 self._ready = True

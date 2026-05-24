@@ -28,8 +28,8 @@ FONT = cv2.FONT_HERSHEY_SIMPLEX
 # ─── Blocos de desenho reutilizáveis ─────────────────────────────────────────────
 def tint(frame, color, alpha: float = 0.28):
     """Aplica um "véu" colorido translúcido sobre todo o frame."""
-    overlay = np.full_like(frame, color, dtype=np.uint8)
-    cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)
+    overlay = np.full_like(frame, color, dtype=np.uint8)  # cria máscara da cor
+    cv2.addWeighted(overlay, alpha, frame, 1 - alpha, 0, frame)  # blend
     return frame
 
 

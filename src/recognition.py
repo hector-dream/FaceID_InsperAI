@@ -70,17 +70,19 @@ class FaceRecognizer:
         if embedding is None or self.embeddings.shape[0] == 0:
             return "Desconhecido", 0.0
 
+        # normaliza o embedding temporário
         query = np.asarray(embedding, dtype=np.float32).ravel()
         norm = np.linalg.norm(query)
         if norm == 0:
             return "Desconhecido", 0.0
         query = query / norm
 
-        # Produto escalar de todos os embeddings da base contra a query.
+        # compara contra todos os conhecidos (produto escalar = similaridade)
         sims = self.embeddings @ query          # shape (N,)
         best = int(np.argmax(sims))
         score = float(sims[best])
 
+        # retorna o nome só se passou no limiar
         if score >= self.threshold:
             return self.names[best], score
         return "Desconhecido", score

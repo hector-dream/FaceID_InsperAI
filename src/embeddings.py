@@ -28,7 +28,7 @@ def get_face_app():
     precisam de reconhecimento não falhem caso a biblioteca ainda não esteja instalada.
     """
     global _APP
-    if _APP is None:
+    if _APP is None:  # lazy load - primeira chamada
         try:
             from insightface.app import FaceAnalysis
         except ImportError as exc:  # pragma: no cover
@@ -63,6 +63,7 @@ def largest_face(faces):
     """Retorna o rosto de maior área de uma lista (ou None se vazia)."""
     if not faces:
         return None
+    # em geral o maior = o mais perto; mais confiável para embeddings
     return max(
         faces,
         key=lambda f: (f.bbox[2] - f.bbox[0]) * (f.bbox[3] - f.bbox[1]),
