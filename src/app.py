@@ -1,5 +1,5 @@
 """
-Dia 5 — Fluxo de autenticação (máquina de estados)
+Fluxo de autenticação
 ==================================================
 
 Junta todas as peças num produto visual que simula um Face ID real:
@@ -56,14 +56,14 @@ class RecognitionWorker:
         self._lock = threading.Lock()
         self._frame = None
         self._result = ("Desconhecido", 0.0)
-        self._ready = False              # já houve ao menos 1 inferência?
+        self._ready = False              
         self._running = True
         self._thread = threading.Thread(target=self._loop, daemon=True)
         self._thread.start()
 
     def submit(self, frame) -> None:
         with self._lock:
-            self._frame = frame.copy()   # cópia: o loop principal reaproveita o buffer
+            self._frame = frame.copy()  
 
     def get(self) -> tuple[str, float]:
         with self._lock:
@@ -97,7 +97,6 @@ class RecognitionWorker:
 
 
 def _brightness(frame) -> float:
-    """Brilho médio (0–255) do frame em tons de cinza."""
     return float(np.mean(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)))
 
 
@@ -109,15 +108,14 @@ def _bbox_area_ratio(bbox, frame_shape) -> float:
 
 
 def run_auth(threshold: float | None = None) -> None:
-    """Inicia o sistema de autenticação em tempo real."""
-    # 1) Recursos de IA
+    # Recursos de IA
     recognizer = FaceRecognizer(threshold=threshold)
     print(f"👥 Pessoas cadastradas: {', '.join(recognizer.people) or '(nenhuma)'}")
     get_face_app()                       # pré-carrega o InsightFace (antes da thread)
     liveness = LivenessDetector()        # pré-carrega/baixa o FaceLandmarker
     worker = RecognitionWorker(recognizer)
 
-    # 2) Câmera
+    # Câmera
     cap = cv2.VideoCapture(config.CAMERA_INDEX)
     if not cap.isOpened():
         worker.stop()
@@ -131,9 +129,9 @@ def run_auth(threshold: float | None = None) -> None:
 
     print("🔒 Sistema iniciado. Controles:  [Q]/[ESC] sair   [F] tela cheia")
 
-    # 3) Estado da máquina
+    # Estado da máquina
     state = LOCKED
-    pending_name: str | None = None      # candidato em prova de vida
+    pending_name: str | None = None    
     liveness_start = 0.0
     granted_name = ""
     granted_time = 0.0
@@ -160,7 +158,7 @@ def run_auth(threshold: float | None = None) -> None:
 
             handled = False  # garante que cada frame seja desenhado uma única vez
 
-            # ── Tela verde "acesso permitido" tem prioridade enquanto dura ──────
+            # ── Tela verde "acesso permitido"
             if state == GRANTED:
                 if now - granted_time < config.GRANTED_DISPLAY_S:
                     interface.render_granted(frame, granted_name)
@@ -170,7 +168,7 @@ def run_auth(threshold: float | None = None) -> None:
                     pending_name = None
                     liveness.reset()
 
-            # ── Exceção: iluminação ruim ────────────────────────────────────────
+             # ── Exceção: iluminação ruim
             if not handled and _brightness(frame) < config.MIN_BRIGHTNESS:
                 state = LOCKED
                 pending_name = None
@@ -178,7 +176,6 @@ def run_auth(threshold: float | None = None) -> None:
                 interface.render_warning(frame, "Iluminacao insuficiente - melhore a luz")
                 handled = True
 
-            # ── Prova de vida (leve, TODO quadro) ───────────────────────────────
             if not handled:
                 ear, blinks, face_count, bbox = liveness.update(frame)
 
@@ -203,7 +200,6 @@ def run_auth(threshold: float | None = None) -> None:
                     interface.render_warning(frame, "Aproxime-se da camera")
 
                 else:
-                    # Manda o quadro para o reconhecimento assíncrono e lê o cache.
                     worker.submit(frame)
 
                     if not worker.ready():
@@ -246,12 +242,12 @@ def run_auth(threshold: float | None = None) -> None:
             # ── Exibição + teclado (ÚNICO ponto por iteração) ───────────────────
             _show(frame, fps)
             key = cv2.waitKey(1) & 0xFF
-            if key in (ord("q"), ord("Q"), 27):       # 27 = ESC
+            if key in (ord("q"), ord("Q"), 27):      
                 break
             if key in (ord("f"), ord("F")):
                 fullscreen = not fullscreen
                 _apply_fullscreen(fullscreen)
-            if _window_closed():                       # usuário clicou no "X"
+            if _window_closed():                      
                 break
     finally:
         worker.stop()
@@ -261,7 +257,6 @@ def run_auth(threshold: float | None = None) -> None:
         print("✅ Sistema encerrado.")
 
 
-# ─── Helpers de janela ───────────────────────────────────────────────────────────
 def _apply_fullscreen(fullscreen: bool) -> None:
     cv2.setWindowProperty(
         config.WINDOW_NAME,
@@ -279,7 +274,6 @@ def _show(frame, fps: float) -> None:
 
 
 def _window_closed() -> bool:
-    """True se a janela foi fechada pelo usuário (clique no X)."""
     try:
         return cv2.getWindowProperty(config.WINDOW_NAME, cv2.WND_PROP_VISIBLE) < 1
     except cv2.error:

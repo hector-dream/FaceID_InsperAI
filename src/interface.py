@@ -1,10 +1,4 @@
 """
-Dia 5 — Interface visual (tela de bloqueio / liberação)
-=======================================================
-
-"Dia de transformar scripts soltos de terminal em um produto visual simulando
-um sistema de autenticação real."
-
 Este módulo concentra apenas o DESENHO (a "cara" do sistema). A lógica de
 decisão fica em `app.py`. Tudo é desenhado com primitivas do OpenCV, então não
 há dependência extra de GUI.

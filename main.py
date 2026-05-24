@@ -3,12 +3,10 @@ FaceID — Insper AI 2026.1
 Ponto de entrada com subcomandos para todo o pipeline.
 
 Uso:
-    python main.py capture [--name NOME]   # Dia 1: cadastrar rostos pela webcam
-    python main.py enroll                  # Dia 2: gerar a base de embeddings
-    python main.py run [--threshold 0.4]   # Dias 3-5: autenticação em tempo real
-    python main.py doctor                  # diagnóstico do ambiente/dependências
-
-Sem argumentos, executa o sistema de autenticação ('run').
+    uv run main.py capture [--name NOME]   
+    uv run main.py enroll                  
+    uv run main.py run [--threshold 0.4]   
+    uv run main.py doctor                  
 """
 
 import argparse

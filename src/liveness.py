@@ -1,10 +1,4 @@
 """
-Dia 4 — Prova de vida / Anti-spoofing (detecção de piscada)
-===========================================================
-
-"Um Face ID de verdade não pode ser enganado por uma foto sua mostrada na tela
-do celular."
-
 A prova de vida aqui é baseada em **marcos faciais (landmarks)** do MediaPipe.
 Calculamos o **EAR (Eye Aspect Ratio)** — a razão entre a altura e a largura do
 olho. Quando o olho fecha, a altura cai e o EAR despenca; quando reabre, o EAR
@@ -16,9 +10,7 @@ Uma foto estática não pisca, então exigir 1 piscada já barra o ataque mais
 comum de spoofing por foto.
 
 Implementação: usamos a API **MediaPipe Tasks** (`FaceLandmarker`), a mesma
-família de API usada na captura do Dia 1 (`FaceDetector`). Ela entrega 478
-marcos faciais e funciona bem em Python recentes — diferente da API legada
-`mp.solutions`, que pode não estar disponível dependendo da versão/instalação.
+família de API usada na captura (`FaceDetector`).
 """
 
 from __future__ import annotations

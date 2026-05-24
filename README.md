@@ -1,7 +1,6 @@
 # Face ID — Insper AI 2026.1
 
-Sistema de **reconhecimento facial com prova de vida** (anti-spoofing), construído
-seguindo o plano de 5 dias do projeto final do trainee. Simula um Face ID real:
+Sistema de **reconhecimento facial com prova de vida** (anti-spoofing) para o projeto final do trainee. Simula um Face ID real:
 a tela começa **bloqueada (vermelha)**, reconhece o rosto cadastrado, exige uma
 **piscada** para provar que é uma pessoa de verdade (e não uma foto) e então
 **libera o acesso (verde)**.
@@ -14,30 +13,30 @@ a tela começa **bloqueada (vermelha)**, reconhece o rosto cadastrado, exige uma
 
 ---
 
-## Pipeline (o que cada dia faz)
+## Pipeline
 
-| Dia | Etapa | Módulo | Tecnologia |
-|-----|-------|--------|------------|
-| 1 | Captura e cadastro de rostos pela webcam | `src/capture.py` | OpenCV + MediaPipe FaceDetector |
-| 2 | Extração de *embeddings* (vetores 512-d) | `src/embeddings.py` | InsightFace (ArcFace) |
-| 3 | Reconhecimento / *matching* | `src/recognition.py` | Similaridade de cosseno |
-| 4 | Prova de vida (anti-spoofing por piscada) | `src/liveness.py` | MediaPipe FaceMesh (EAR) |
-| 5 | Interface de bloqueio + fluxo de autenticação | `src/interface.py`, `src/app.py` | OpenCV |
+| Etapa | Módulo | Tecnologia |
+|-------|--------|------------|
+| Captura e cadastro de rostos pela webcam | `src/capture.py` | OpenCV + MediaPipe FaceDetector |
+| Extração de *embeddings* (vetores 512-d) | `src/embeddings.py` | InsightFace (ArcFace) |
+| Reconhecimento / *matching* | `src/recognition.py` | Similaridade de cosseno |
+| Prova de vida (anti-spoofing por piscada) | `src/liveness.py` | MediaPipe FaceMesh (EAR) |
+| nterface de bloqueio + fluxo de autenticação | `src/interface.py`, `src/app.py` | OpenCV |
 
 Todos os parâmetros ajustáveis (limiares, câmera, modelo) ficam em **`src/config.py`**.
 
 ```
 src/
   config.py        # parâmetros centrais (limiares, caminhos, câmera)
-  capture.py       # Dia 1 — captura/cadastro
-  embeddings.py    # Dia 2 — embeddings (InsightFace)
-  recognition.py   # Dia 3 — matching por cosseno
-  liveness.py      # Dia 4 — prova de vida (piscada/EAR)
-  interface.py     # Dia 5 — desenho das telas (bloqueado/liberado)
-  app.py           # Dia 5 — máquina de estados da autenticação
+  capture.py       # — captura/cadastro
+  embeddings.py    # — embeddings (InsightFace)
+  recognition.py   # — matching por cosseno
+  liveness.py      # — prova de vida (piscada/EAR)
+  interface.py     # — desenho das telas (bloqueado/liberado)
+  app.py           # — máquina de estados da autenticação
 data/
-  dataset/<pessoa>/*.jpg   # fotos cadastradas (geradas no Dia 1)
-  embeddings.pkl           # base de vetores (gerada no Dia 2)
+  dataset/<pessoa>/*.jpg   # fotos cadastradas 
+  embeddings.pkl           # base de vetores
 main.py            # CLI: capture / enroll / run / doctor
 ```
 
@@ -47,11 +46,11 @@ main.py            # CLI: capture / enroll / run / doctor
 
 1. O **InsightFace** transforma cada rosto em um vetor de **512 números** (*embedding*).
    Rostos parecidos geram vetores parecidos.
-2. No cadastro (Dia 2), guardamos os vetores das suas fotos em `data/embeddings.pkl`.
-3. Ao vivo (Dia 3), comparamos o vetor do rosto na câmera com a base usando
+2. No cadastro, guardamos os vetores das suas fotos em `data/embeddings.pkl`.
+3. Ao vivo, comparamos o vetor do rosto na câmera com a base usando
    **similaridade de cosseno**. Se a maior similaridade passar do limiar
    (`RECOGNITION_THRESHOLD`, padrão `0.40`), é você; senão, "Desconhecido".
-4. A **prova de vida** (Dia 4) calcula o *Eye Aspect Ratio* (EAR) com os marcos
+4. A **prova de vida** calcula o *Eye Aspect Ratio* (EAR) com os marcos
    faciais do MediaPipe e detecta uma **piscada**. Uma foto estática não pisca,
    então o acesso só é liberado depois da piscada.
 
@@ -62,7 +61,7 @@ main.py            # CLI: capture / enroll / run / doctor
 > **Recomendado: Python 3.11.** O InsightFace/onnxruntime e o MediaPipe têm
 > wheels mais estáveis em 3.10–3.12. O projeto foi ajustado para essa faixa.
 
-### Com `uv` (recomendado)
+### Com `uv`
 
 ```bash
 # Cria o ambiente com Python 3.11
@@ -70,6 +69,10 @@ uv venv --python 3.11
 # Ative o ambiente:
 #   Windows (PowerShell):  .venv\Scripts\Activate.ps1
 #   Linux/Mac:             source .venv/bin/activate
+
+uv sync
+
+#ou
 
 uv pip install -r requirements.txt
 ```
@@ -97,7 +100,7 @@ Na primeira execução, o InsightFace baixa automaticamente o pacote de modelos
 ### Conferir o ambiente
 
 ```bash
-python main.py doctor
+uv run main.py doctor
 ```
 
 Mostra as versões instaladas, se o modelo de detecção existe e quem já está cadastrado.
@@ -106,31 +109,31 @@ Mostra as versões instaladas, se o modelo de detecção existe e quem já está
 
 ## Uso
 
-### 1) Cadastrar um rosto (Dia 1)
+### 1) Cadastrar um rosto
 
 ```bash
-python main.py capture --name anderson
+uv run main.py capture --name <SEUNOME>
 ```
 
 Aponte o rosto para a câmera e aperte **`C`** para salvar (capture de **5 a 10
 fotos** em ângulos/expressões levemente diferentes). Aperte **`Q`** para sair.
-As fotos vão para `data/dataset/anderson/`. Repita para cada pessoa.
+As fotos vão para `data/dataset/<SEUNOME>/`. Repita para cada pessoa.
 
-### 2) Gerar a base de embeddings (Dia 2)
+### 2) Gerar a base de embeddings
 
 ```bash
-python main.py enroll
+uv run main.py enroll
 ```
 
 Lê todas as fotos de `data/dataset/`, gera os vetores e salva em `data/embeddings.pkl`.
 Rode novamente sempre que adicionar/remover fotos.
 
-### 3) Rodar a autenticação (Dias 3–5)
+### 3) Rodar a autenticação
 
 ```bash
-python main.py run
+uv run main.py run
 # limiar mais rígido (menos falsos positivos):
-python main.py run --threshold 0.5
+uv run main.py run --threshold 0.5
 ```
 
 Fluxo na tela: **BLOQUEADO** → rosto reconhecido → **PISQUE** (prova de vida) →
@@ -138,7 +141,7 @@ Fluxo na tela: **BLOQUEADO** → rosto reconhecido → **PISQUE** (prova de vida
 
 ---
 
-## Ajuste fino (Dia 4)
+## Ajuste fino
 
 Edite `src/config.py`:
 
@@ -154,7 +157,7 @@ Edite `src/config.py`:
 
 ---
 
-## Tratamento de exceções (Dia 5)
+## Tratamento de exceções
 
 O sistema permanece bloqueado e mostra um aviso quando:
 

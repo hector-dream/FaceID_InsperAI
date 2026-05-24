@@ -1,12 +1,6 @@
 """
-Dia 3 — Comparação e reconhecimento (matching)
-==============================================
-
-"Hoje você vai fazer o sistema decidir se o rosto na webcam é você ou um
-desconhecido."
-
 Quando um novo rosto aparece, o InsightFace gera um embedding temporário.
-Comparamos esse vetor com os vetores salvos na base (Dia 2) usando a
+Comparamos esse vetor com os vetores salvos na base usando a
 **similaridade de cosseno**:
 
     sim(a, b) = (a · b) / (||a|| · ||b||)
@@ -47,7 +41,7 @@ class FaceRecognizer:
         if not self.db_path.exists():
             raise FileNotFoundError(
                 f"Base de embeddings não encontrada em {self.db_path}.\n"
-                "Gere-a primeiro (Dia 2):  python main.py enroll"
+                "Gere-a primeiro:  uv run main.py enroll"
             )
         with open(self.db_path, "rb") as f:
             db = pickle.load(f)
@@ -93,8 +87,7 @@ class FaceRecognizer:
 
     def identify_per_person(self, embedding) -> dict[str, float]:
         """
-        Retorna a melhor similaridade por pessoa — útil para depurar/ajustar o
-        threshold (Dia 4).
+        Retorna a melhor similaridade por pessoa — útil para depurar/ajustar o threshold.
         """
         result: dict[str, float] = {}
         if embedding is None or self.embeddings.shape[0] == 0:

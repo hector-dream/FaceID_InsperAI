@@ -1,16 +1,3 @@
-"""
-Dia 1 — Captura e cadastro de rostos (webcam + MediaPipe)
-=========================================================
-
-"O objetivo do primeiro dia é colocar a imagem na tela, extrair o rosto e
-salvar as fotos da pessoa que será cadastrada."
-
-Abre a webcam, detecta o rosto em tempo real com o MediaPipe FaceDetector
-(BlazeFace) e, ao apertar 'C', salva o recorte do rosto (com uma pequena
-margem) em `data/dataset/<pessoa>/`. Capture de 5 a 10 fotos em ângulos
-levemente diferentes para o reconhecimento (Dia 2/3) ficar robusto.
-"""
-
 from __future__ import annotations
 
 import urllib.request
@@ -24,7 +11,6 @@ from . import config
 
 # ─── Modelo ──────────────────────────────────────────────────────────────────────
 def ensure_model() -> None:
-    """Baixa o modelo de detecção do MediaPipe caso ainda não exista."""
     model_path = Path(config.MP_DETECTOR_MODEL)
     if not model_path.exists():
         model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -40,7 +26,7 @@ def extract_bbox(detection, frame_shape, margin: float = 0.0):
 
     `margin` adiciona uma folga proporcional ao redor do rosto — útil para o
     recorte não ficar "colado" no rosto, o que melhora a detecção/alinhamento
-    na etapa de embeddings (Dia 2).
+    na etapa de embeddings.
     """
     h, w = frame_shape[:2]
     bbox = detection.bounding_box
@@ -56,7 +42,6 @@ def extract_bbox(detection, frame_shape, margin: float = 0.0):
 
 
 def draw_detections(frame, detections) -> None:
-    """Desenha bounding boxes e keypoints no frame."""
     h, w = frame.shape[:2]
     for detection in detections:
         x_min, y_min, x_max, y_max = extract_bbox(detection, frame.shape)

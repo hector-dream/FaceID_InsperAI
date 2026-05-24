@@ -1,19 +1,8 @@
 """
-Dia 2 — Extração de características (embeddings)
-===============================================
-
-"Apenas detectar o rosto não basta; precisamos transformá-lo em números que o
-computador entenda. Rostos parecidos geram números parecidos."
-
-Aqui usamos o InsightFace (modelo ArcFace, pacote `buffalo_l`) que recebe a
-imagem de um rosto e devolve um vetor de 512 dimensões (o *embedding*). O
-InsightFace também faz a detecção e o alinhamento do rosto internamente, o que
-melhora bastante a qualidade do vetor em comparação a recortar "na mão".
-
 Este módulo:
   1. Carrega o modelo InsightFace uma única vez (cache global).
   2. Gera o embedding de uma imagem qualquer.
-  3. Varre `data/dataset/<pessoa>/*.jpg` (fotos do Dia 1) e monta a base de
+  3. Varre `data/dataset/<pessoa>/*.jpg` e monta a base de
      conhecidos, salvando em `data/embeddings.pkl`.
 """
 
@@ -36,8 +25,7 @@ def get_face_app():
     Carrega o InsightFace apenas uma vez e reutiliza nas próximas chamadas.
 
     Importamos o `insightface` dentro da função para que módulos que não
-    precisam de reconhecimento (ex.: só captura do Dia 1) não falhem caso a
-    biblioteca ainda não esteja instalada.
+    precisam de reconhecimento não falhem caso a biblioteca ainda não esteja instalada.
     """
     global _APP
     if _APP is None:
@@ -136,9 +124,9 @@ def build_database(dataset_dir=None, output_path=None, verbose=True):
     Percorre o dataset (uma subpasta por pessoa), gera os embeddings de cada foto
     e salva a base em um arquivo .pkl.
 
-    Estrutura salva (fácil de consumir no Dia 3):
+    Estrutura salva:
         {
-            "names":      ["anderson", "anderson", "lara", ...],   # 1 por embedding
+            "names":      ["anderson", "anderson", "lara", ...],  
             "embeddings": np.ndarray de shape (N, 512), já normalizados,
         }
     """
@@ -148,14 +136,14 @@ def build_database(dataset_dir=None, output_path=None, verbose=True):
     if not dataset_dir.exists():
         raise FileNotFoundError(
             f"Dataset não encontrado em {dataset_dir}.\n"
-            "Rode primeiro o cadastro do Dia 1:  python main.py capture"
+            "Rode primeiro o cadastro do:  uv run main.py capture"
         )
 
     person_dirs = sorted(p for p in dataset_dir.iterdir() if p.is_dir())
     if not person_dirs:
         raise FileNotFoundError(
             f"Nenhuma pessoa cadastrada em {dataset_dir}. "
-            "Cadastre rostos com:  python main.py capture"
+            "Cadastre rostos com:  uv run main.py capture"
         )
 
     names: list[str] = []
