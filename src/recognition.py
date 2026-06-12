@@ -1,16 +1,16 @@
 """
-Quando um novo rosto aparece, o InsightFace gera um embedding temporário.
-Comparamos esse vetor com os vetores salvos na base usando a
-**similaridade de cosseno**:
+Quando um novo rosto aparece, a nossa CNN (treinada em `src/train.py`) gera um
+embedding temporário. Comparamos esse vetor com os vetores salvos na base
+usando a **similaridade de cosseno**:
 
     sim(a, b) = (a · b) / (||a|| · ||b||)
 
-Como os embeddings do InsightFace já vêm normalizados (norma 1), a similaridade
-de cosseno vira simplesmente o produto escalar `a · b`, variando de -1 a 1
-(quanto MAIOR, mais parecidos os rostos).
+Como os embeddings já saem normalizados de `src/embeddings.py` (norma 1), a
+similaridade de cosseno vira simplesmente o produto escalar `a · b`, variando
+de -1 a 1 (quanto MAIOR, mais parecidos os rostos).
 
 > Obs.: a rubrica cita distância euclidiana com limiar ~0.6 (mundo dlib). Com
-> ArcFace/cosseno a lógica é equivalente, só que o limiar é de SIMILARIDADE
+> cosseno a lógica é equivalente, só que o limiar é de SIMILARIDADE
 > (maior = mais parecido) — por isso comparamos com `>=` em vez de `<=`.
 """
 
@@ -33,7 +33,7 @@ class FaceRecognizer:
             threshold if threshold is not None else config.RECOGNITION_THRESHOLD
         )
         self.names: list[str] = []
-        self.embeddings: np.ndarray = np.empty((0, 512), dtype=np.float32)
+        self.embeddings: np.ndarray = np.empty((0, config.EMBEDDING_DIM), dtype=np.float32)
         self.load()
 
     # ─── Carregamento da base ───────────────────────────────────────────────────

@@ -1,8 +1,15 @@
 # FaceID - Insper AI 2026.1
-# Recomendado: Python 3.11 (melhor compatibilidade de wheels com InsightFace/onnxruntime).
+# Recomendado: Python 3.11 (melhor compatibilidade de wheels com PyTorch/MediaPipe).
+#
+# PyTorch: no Windows, "pip install torch" sem mais nada baixa um build com
+# CUDA embutido (vários GB). Para a versão CPU (~200MB), instale com:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+# (quem usa `uv sync` com o pyproject.toml deste projeto já recebe a build
+# CPU automaticamente.)
 
 opencv-python>=4.8
 mediapipe>=0.10.14
 numpy>=1.26,<2.0
-insightface>=0.7.3
-onnxruntime>=1.17
+torch>=2.2
+torchvision>=0.17
+scikit-learn>=1.4

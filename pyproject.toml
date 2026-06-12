@@ -3,15 +3,16 @@ name = "faceid-insperai"
 version = "1.0.0"
 description = "Sistema de Face ID (detecção + reconhecimento + prova de vida) - Insper AI 2026.1"
 readme = "README.md"
-# InsightFace/onnxruntime e MediaPipe têm melhor suporte de wheels em 3.10–3.12.
+# PyTorch/torchvision e MediaPipe têm melhor suporte de wheels em 3.10–3.12.
 # Recomendado: Python 3.11.
 requires-python = ">=3.10,<3.13"
 dependencies = [
     "opencv-python>=4.8",
     "mediapipe>=0.10.14",
     "numpy>=1.26,<2.0",
-    "insightface>=0.7.3",
-    "onnxruntime>=1.17",
+    "torch>=2.2",
+    "torchvision>=0.17",
+    "scikit-learn>=1.4",
 ]
 
 [project.scripts]
@@ -19,4 +20,13 @@ faceid = "main:main"
 
 [tool.uv]
 package = false
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu" }]
+torchvision = [{ index = "pytorch-cpu" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
 

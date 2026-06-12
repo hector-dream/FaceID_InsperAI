@@ -3,14 +3,25 @@ FaceID — Insper AI 2026.1
 Ponto de entrada com subcomandos para todo o pipeline.
 
 Uso:
-    uv run main.py capture [--name NOME]   
-    uv run main.py enroll                  
-    uv run main.py run [--threshold 0.4]   
-    uv run main.py doctor                  
+    uv run main.py train [--min-faces 20] [--epochs 8]
+    uv run main.py capture [--name NOME]
+    uv run main.py enroll
+    uv run main.py run [--threshold 0.4]
+    uv run main.py doctor
 """
 
 import argparse
 import sys
+
+
+def cmd_train(args):
+    from src.train import train_model
+    train_model(
+        min_faces_per_person=args.min_faces,
+        epochs=args.epochs,
+        batch_size=args.batch_size,
+        lr=args.lr,
+    )
 
 
 def cmd_capture(args):
@@ -35,7 +46,7 @@ def cmd_doctor(args):
     print("🩺 Diagnóstico do ambiente FaceID\n")
     print(f"Python: {sys.version.split()[0]}")
 
-    checks = ["cv2", "numpy", "mediapipe", "insightface", "onnxruntime"]
+    checks = ["cv2", "numpy", "mediapipe", "torch", "torchvision", "sklearn"]
     all_ok = True
     for mod in checks:
         try:
@@ -51,6 +62,8 @@ def cmd_doctor(args):
     print()
     print(f"Modelo de detecção (Dia 1): "
           f"{'✅' if config.MP_DETECTOR_MODEL.exists() else '❌ (será baixado no 1º uso)'}")
+    print(f"Modelo de embeddings (CNN própria): "
+          f"{'✅ ' + str(config.EMBEDDING_MODEL_PATH) if config.EMBEDDING_MODEL_PATH.exists() else '❌ (rode: python main.py train)'}")
     print(f"Base de embeddings (Dia 2): "
           f"{'✅ ' + str(config.EMBEDDINGS_PATH) if config.EMBEDDINGS_PATH.exists() else '❌ (rode: python main.py enroll)'}")
 
@@ -69,6 +82,14 @@ def build_parser() -> argparse.ArgumentParser:
         description="Sistema de Face ID - Insper AI 2026.1",
     )
     sub = parser.add_subparsers(dest="command")
+
+    p_train = sub.add_parser("train", help="treina a CNN de embeddings no dataset LFW")
+    p_train.add_argument("--min-faces", type=int, default=None,
+                          help="mínimo de fotos por pessoa no LFW (padrão: config.LFW_MIN_FACES_PER_PERSON)")
+    p_train.add_argument("--epochs", type=int, default=None, help="número de épocas de treino")
+    p_train.add_argument("--batch-size", type=int, default=None, help="tamanho do lote (batch)")
+    p_train.add_argument("--lr", type=float, default=None, help="taxa de aprendizado")
+    p_train.set_defaults(func=cmd_train)
 
     p_cap = sub.add_parser("capture", help="Dia 1: cadastrar rostos pela webcam")
     p_cap.add_argument("--name", default=None, help="nome da pessoa a cadastrar")

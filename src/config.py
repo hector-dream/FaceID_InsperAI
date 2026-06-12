@@ -33,21 +33,34 @@ MIN_DETECTION_CONFIDENCE = 0.5
 CAPTURE_MARGIN = 0.40          # margem (proporcional) ao redor do rosto no recorte
                                # (margem generosa ajuda o InsightFace a detectar no cadastro)
 
-# ─── Reconhecimento facial (InsightFace / ArcFace) ─────────────────────
-# "buffalo_l" = melhor precisão | "buffalo_s" = mais leve/rápido em CPUs modestas.
-INSIGHTFACE_MODEL_PACK = "buffalo_l"
-INSIGHTFACE_PROVIDERS = ["CPUExecutionProvider"]  
-INSIGHTFACE_CTX_ID = 0
-INSIGHTFACE_DET_SIZE = (320, 320)   # menor = detecção mais rápida em CPU (não afeta o cadastro já feito)
+# ─── Reconhecimento facial (CNN própria, treinada no LFW) ────────────────
+MODELS_DIR = DATA_DIR / "models"
+EMBEDDING_MODEL_PATH = MODELS_DIR / "face_embedding.pt"
+
+EMBEDDING_DIM = 128                 # tamanho do vetor de embedding gerado pela rede
+EMBEDDING_BACKBONE = "mobilenet_v2"  # "mobilenet_v2" (leve) ou "resnet18" (mais pesado)
+EMBEDDING_IMAGE_SIZE = 112           # lado (px) do recorte do rosto enviado à rede
+
+# ─── Treino (uv run main.py train) ───────────────────────────────────────
+LFW_MIN_FACES_PER_PERSON = 20  # mínimo de fotos/pessoa no LFW (menos = mais
+                                # pessoas/classes, melhor generalização, treino mais lento)
+TRAIN_EPOCHS = 8
+TRAIN_BATCH_SIZE = 32
+TRAIN_LR = 1e-3
+TRAIN_VAL_SPLIT = 0.15
 
 # Limiar de similaridade de cosseno (0–1). MAIOR = mais rígido (menos falsos positivos).
-# ArcFace costuma separar bem por volta de 0.35–0.50.
-RECOGNITION_THRESHOLD = 0.40
+# Com o ArcFace pronto, 0.35–0.50 funcionava bem. Com a NOSSA rede a distribuição das
+# similaridades é mais "achatada" (pessoas diferentes já ficam por volta de 0.28 em
+# média). Calibrado empiricamente sobre as fotos de data/dataset/ após o treino padrão
+# (8 épocas / 62 pessoas do LFW): 0.75 deu ~87% de acerto entre "mesma pessoa" vs
+# "pessoa diferente", priorizando poucos falsos positivos. Se trocar o treino/dataset,
+# recalibre observando `FaceRecognizer.identify_per_person`.
+RECOGNITION_THRESHOLD = 0.75
 
-# Desempenho: o reconhecimento (InsightFace, pesado) roda numa thread em segundo
+# Desempenho: o reconhecimento (nossa CNN, em PyTorch) roda numa thread em segundo
 # plano (ver src/app.py), então o vídeo e a prova de vida não travam esperando o
-# modelo. Para acelerar ainda mais o reconhecimento, troque o pacote para
-# "buffalo_s" acima — mas aí é preciso refazer o cadastro (uv run main.py enroll).
+# modelo.
 
 # ─── Prova de vida / Anti-spoofing (piscada via MediaPipe FaceMesh) ──────
 EAR_THRESHOLD = 0.21          # abaixo disso o olho é considerado fechado (EAR)
